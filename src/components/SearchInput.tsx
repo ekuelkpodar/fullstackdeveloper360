@@ -4,8 +4,8 @@ import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { suggest } from "@/lib/search";
 
-export function SearchInput({ compact = false }: { compact?: boolean }) {
-  const [value, setValue] = useState("");
+export function SearchInput({ compact = false, defaultValue = "" }: { compact?: boolean; defaultValue?: string }) {
+  const [value, setValue] = useState(defaultValue);
   const suggestions = useMemo(() => {
     if (!value.trim()) return [];
     return suggest(value);
