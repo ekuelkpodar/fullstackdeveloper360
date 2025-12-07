@@ -1,6 +1,20 @@
+import type { Metadata } from "next";
 import { QuestionCard } from "@/components/QuestionCard";
-import { getQuestionsByTag, getTagBySlug } from "@/lib/content";
+import { getQuestionsByTag, getTagBySlug, getTags } from "@/lib/content";
 import { notFound } from "next/navigation";
+
+export function generateStaticParams() {
+  return getTags().map((tag) => ({ slug: tag.slug }));
+}
+
+export function generateMetadata({ params }: { params: { slug: string } }): Metadata {
+  const tag = getTagBySlug(params.slug);
+  if (!tag) return { title: "Tag not found" };
+  return {
+    title: `${tag.name} interview questions`,
+    description: `Questions tagged with ${tag.name} across topics and difficulties.`,
+  };
+}
 
 export default function TagDetail({ params }: { params: { slug: string } }) {
   const tag = getTagBySlug(params.slug);

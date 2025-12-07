@@ -1,8 +1,22 @@
 import { Suspense } from "react";
+import type { Metadata } from "next";
 import { QuestionCard } from "@/components/QuestionCard";
 import { FiltersBar } from "@/components/FiltersBar";
-import { getCategoryBySlug, getQuestionsByCategory } from "@/lib/content";
+import { getCategories, getCategoryBySlug, getQuestionsByCategory } from "@/lib/content";
 import { notFound } from "next/navigation";
+
+export function generateStaticParams() {
+  return getCategories().map((cat) => ({ slug: cat.slug }));
+}
+
+export function generateMetadata({ params }: { params: { slug: string } }): Metadata {
+  const category = getCategoryBySlug(params.slug);
+  if (!category) return { title: "Topic not found" };
+  return {
+    title: `${category.name} interview questions`,
+    description: category.description,
+  };
+}
 
 export default function TopicDetail({ params }: { params: { slug: string } }) {
   const category = getCategoryBySlug(params.slug);

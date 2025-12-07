@@ -1,9 +1,28 @@
 import Link from "next/link";
+import type { Metadata } from "next";
 import { QuestionDetail } from "@/components/QuestionDetail";
 import { TableOfContents } from "@/components/TableOfContents";
 import { QuestionCard } from "@/components/QuestionCard";
 import { getQuestionBySlug, getQuestions } from "@/lib/content";
 import { notFound } from "next/navigation";
+
+export function generateStaticParams() {
+  return getQuestions().map((q) => ({ slug: q.slug }));
+}
+
+export function generateMetadata({ params }: { params: { slug: string } }): Metadata {
+  const question = getQuestionBySlug(params.slug);
+  if (!question) return { title: "Question not found" };
+  return {
+    title: `${question.title} | Interview Q&A`,
+    description: question.summary,
+    openGraph: {
+      title: question.title,
+      description: question.summary,
+      type: "article",
+    },
+  };
+}
 
 export default function QuestionPage({ params }: { params: { slug: string } }) {
   const question = getQuestionBySlug(params.slug);
