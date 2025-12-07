@@ -6,15 +6,30 @@ import { QuestionCard } from "@/components/QuestionCard";
 import { applyFilters, getQuestions } from "@/lib/content";
 import { searchQuestions } from "@/lib/search";
 
+const allowedTypes: (QuestionType | "all")[] = ["theory", "coding", "system-design", "behavioral", "all"];
+const allowedDifficulties: (Difficulty | "all")[] = ["easy", "medium", "hard", "all"];
+
+const parseType = (value: string | undefined): QuestionType | "all" => {
+  if (!value) return "all";
+  return allowedTypes.includes(value as QuestionType | "all") ? (value as QuestionType | "all") : "all";
+};
+
+const parseDifficulty = (value: string | undefined): Difficulty | "all" => {
+  if (!value) return "all";
+  return allowedDifficulties.includes(value as Difficulty | "all") ? (value as Difficulty | "all") : "all";
+};
+
 export default function SearchPage({ searchParams }: { searchParams: Record<string, string> }) {
   const query = searchParams.q ?? "";
+  const activeType = parseType(searchParams.type);
+  const activeDifficulty = parseDifficulty(searchParams.difficulty);
   const base = query ? searchQuestions(query) : getQuestions();
   const finalList = applyFilters(
     {
       category: searchParams.category,
       tags: searchParams.tag ? [searchParams.tag] : undefined,
-      difficulty: (searchParams.difficulty as Difficulty | "all" | null) ?? "all",
-      type: (searchParams.type as QuestionType | "all" | null) ?? "all",
+      difficulty: activeDifficulty,
+      type: activeType,
       sort: (searchParams.sort as "popular" | "newest" | null) ?? "popular",
     },
     base,
@@ -29,6 +44,11 @@ export default function SearchPage({ searchParams }: { searchParams: Record<stri
           <p className="text-sm text-neutral-600">
             {query ? `Showing results for “${query}”` : "Find questions by topic, tag, difficulty, or type."}
           </p>
+          {activeType !== "all" && (
+            <p className="mt-1 text-xs font-semibold uppercase tracking-wide text-blue-700">
+              Filtering by type: {activeType.replace("-", " ")}
+            </p>
+          )}
         </div>
       </div>
 
